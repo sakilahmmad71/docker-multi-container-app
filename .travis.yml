@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t sakilahmmad71/docker-multiple-container-app -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run sakilahmmad71/docker-multiple-container-app npm test -- --coverage
+
+after_success:
+  - docker build -t sakilahmmad71/docker-multi-client ./client
+  - docker build -t sakilahmmad71/docker-multi-server ./server
+  - docker build -t sakilahmmad71/docker-multi-worker ./worker
+  - docker build -t sakilahmmad71/docker-multi-nginx ./nginx
+  # Take those imsge and push to docker hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those imsge and push to docker hub
+  - docker push sakilahmmad71/docker-multi-client
+  - docker push sakilahmmad71/docker-multi-server
+  - docker push sakilahmmad71/docker-multi-worker
+  - docker push sakilahmmad71/docker-multi-nginx
